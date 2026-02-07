@@ -21,50 +21,50 @@ export const GAME_CONFIG = {
   ADMIN_SECRET: 'retro99',
   KAKAO_JS_KEY: '128f6c3fb91331364676332dcccae4cb',
   ASSETS: {
-    BACKGROUND_PC: '/assets/images/background_pc.png',
-    BACKGROUND_MOBILE: '/assets/images/background_mobile.png',
-    LOGO_TITLE: '/assets/images/logo.png',
-    LOGO_GATE: '/assets/images/title.png',
-    LOGO_START: '/assets/images/logo.png',
-    LOGO_HEARTS: '/assets/images/logo.png',
-    BRAND_LOGO: '/assets/images/logo.png', // 메인 화면 상단 브랜드 로고
+    BACKGROUND_PC: './assets/images/background_pc.png',
+    BACKGROUND_MOBILE: './assets/images/background_mobile.png',
+    LOGO_TITLE: './assets/images/logo.png',
+    LOGO_GATE: './assets/images/title.png',
+    LOGO_START: './assets/images/logo.png',
+    LOGO_HEARTS: './assets/images/logo.png',
+    BRAND_LOGO: './assets/images/logo.png', // 메인 화면 상단 브랜드 로고
     BRICKS: {
-      BANANA: '/assets/images/bricks/banana.png',
-      PINEAPPLE: '/assets/images/bricks/pineapple.png',
-      APPLE: '/assets/images/bricks/apple.png',
-      BLUEBERRY: '/assets/images/bricks/blueberry.png',
-      AVOCADO: '/assets/images/bricks/avocado.png',
-      BOMB: '/assets/images/bricks/bomb.gif',
-      BOMB_ACTIVE: '/assets/images/bricks/bomb1.gif',
-      GRAY: '/assets/images/bricks/gray.png',
-      RAINBOW: '/assets/images/bricks/rainbow.gif',
-      CROSS: '/assets/images/bricks/cross.gif',
-      CROSS_ACTIVE: '/assets/images/bricks/cross1.gif'
+      BANANA: './assets/images/bricks/banana.png',
+      PINEAPPLE: './assets/images/bricks/pineapple.png',
+      APPLE: './assets/images/bricks/apple.png',
+      BLUEBERRY: './assets/images/bricks/blueberry.png',
+      AVOCADO: './assets/images/bricks/avocado.png',
+      BOMB: './assets/images/bricks/bomb.gif',
+      BOMB_ACTIVE: './assets/images/bricks/bomb1.gif',
+      GRAY: './assets/images/bricks/gray.png',
+      RAINBOW: './assets/images/bricks/rainbow.gif',
+      CROSS: './assets/images/bricks/cross.gif',
+      CROSS_ACTIVE: './assets/images/bricks/cross1.gif'
     },
     AUDIO: {
-      BGM1: '/assets/sounds/bgm1.wav',
-      BGM2: '/assets/sounds/bgm2.wav',
-      BGM3: '/assets/sounds/bgm3.wav',
-      BGM4: '/assets/sounds/bgm4.wav',
-      BGM5: '/assets/sounds/bgm5.wav',
-      BGM6: '/assets/sounds/bgm6.wav',
-      HIT1: '/assets/sounds/hit1.wav',
-      HIT2: '/assets/sounds/hit2.wav',
-      HIT3: '/assets/sounds/hit1.wav',   // TODO: 별도 음향 파일 필요 (현재 HIT1과 동일)
-      BREAK: '/assets/sounds/hit1.wav',  // TODO: 별도 음향 파일 필요 (현재 HIT1과 동일)
-      GAMEOVER: '/assets/sounds/gameover.wav',
-      LEVELUP: '/assets/sounds/levelup.wav',
-      CLICK: '/assets/sounds/click.wav',
-      GAME_START: '/assets/sounds/game_start.wav',
-      RANKING_OPEN: '/assets/sounds/ranking_open.wav',
-      BOMB_EXPLODE: '/assets/sounds/bomb_explode.wav',
-      RAINBOW_HIT: '/assets/sounds/rainbow_hit.wav',
-      CROSS_APPEAR: '/assets/sounds/cross_appear.wav',
-      CROSS_START: '/assets/sounds/cross_start.wav',
-      CROSS_LOOP: '/assets/sounds/cross_loop.wav',
+      BGM1: './assets/sounds/bgm1.wav',
+      BGM2: './assets/sounds/bgm2.wav',
+      BGM3: './assets/sounds/bgm3.wav',
+      BGM4: './assets/sounds/bgm4.wav',
+      BGM5: './assets/sounds/bgm5.wav',
+      BGM6: './assets/sounds/bgm6.wav',
+      HIT1: './assets/sounds/hit1.wav',
+      HIT2: './assets/sounds/hit2.wav',
+      HIT3: './assets/sounds/hit1.wav',   // TODO: 별도 음향 파일 필요 (현재 HIT1과 동일)
+      BREAK: './assets/sounds/hit1.wav',  // TODO: 별도 음향 파일 필요 (현재 HIT1과 동일)
+      GAMEOVER: './assets/sounds/gameover.wav',
+      LEVELUP: './assets/sounds/levelup.wav',
+      CLICK: './assets/sounds/click.wav',
+      GAME_START: './assets/sounds/game_start.wav',
+      RANKING_OPEN: './assets/sounds/ranking_open.wav',
+      BOMB_EXPLODE: './assets/sounds/bomb_explode.wav',
+      RAINBOW_HIT: './assets/sounds/rainbow_hit.wav',
+      CROSS_APPEAR: './assets/sounds/cross_appear.wav',
+      CROSS_START: './assets/sounds/cross_start.wav',
+      CROSS_LOOP: './assets/sounds/cross_loop.wav',
       // 카운트다운용 명시적 키
-      COUNTDOWN_3_2: '/assets/sounds/count.wav',
-      COUNTDOWN_1: '/assets/sounds/game_start.wav'
+      COUNTDOWN_3_2: './assets/sounds/count.wav',
+      COUNTDOWN_1: './assets/sounds/game_start.wav'
     }
   }
 };
