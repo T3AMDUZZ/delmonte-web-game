@@ -1,0 +1,90 @@
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>델몬트 브릭 브레이커</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.0/kakao.min.js" integrity="sha384-lSQG9XG8u7m+7V0ig9YRE39Mv7Xm/G67H47nU89F0GzYd/EAgqI+GjRovp0zVn" crossorigin="anonymous"></script>
+    
+    <!-- 폰트 설정 -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://cdn.jsdelivr.net/gh/sun-typeface/Galmuri@latest/dist/Galmuri.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background-color: #000;
+            font-family: 'Galmuri9', 'Galmuri11', 'Press Start 2P', sans-serif;
+            image-rendering: pixelated;
+        }
+        canvas {
+            image-rendering: pixelated;
+            display: block;
+            margin: 0 auto;
+        }
+        .pixel-font {
+            font-family: 'Galmuri9', 'Galmuri11', 'Press Start 2P', sans-serif;
+        }
+        @keyframes sparkle {
+          0%, 100% { filter: brightness(1); transform: scale(1); }
+          50% { filter: brightness(1.15) contrast(1.1); transform: scale(1.02); }
+        }
+        .animate-sparkle {
+          animation: sparkle 1.5s infinite ease-in-out;
+        }
+
+        /* 리퀴드 글라스 효과: 오직 배경만 투과/블러 처리 */
+        .liquid-glass-overlay {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            z-index: 5;
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(15px) saturate(140%);
+            -webkit-backdrop-filter: blur(15px) saturate(140%);
+            overflow: hidden;
+        }
+        .liquid-glass-overlay::after {
+            content: "";
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(
+                circle at center,
+                rgba(255, 255, 255, 0.12) 0%,
+                rgba(255, 255, 255, 0.04) 30%,
+                transparent 65%
+            );
+            animation: liquid-flow 12s infinite ease-in-out alternate;
+        }
+        @keyframes liquid-flow {
+            0% { transform: translate(-8%, -8%) rotate(0deg); }
+            50% { transform: translate(4%, 4%) rotate(3deg); }
+            100% { transform: translate(8%, 8%) rotate(-3deg); }
+        }
+    </style>
+<script type="importmap">
+{
+  "imports": {
+    "react": "https://esm.sh/react@^19.2.3",
+    "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
+    "react/": "https://esm.sh/react@^19.2.3/",
+    "vite": "https://esm.sh/vite@^7.3.1",
+    "@vitejs/plugin-react": "https://esm.sh/@vitejs/plugin-react@^5.1.2"
+  }
+}
+</script>
+</head>
+<body>
+    <div id="root"></div>
+    <script type="module" src="./index.tsx"></script>
+</body>
+</html>
