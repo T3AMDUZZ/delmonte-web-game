@@ -635,6 +635,7 @@ const GameCanvas: React.FC<Props> = ({
   };
 
   const handleNextLevel = () => {
+    if (level >= GAME_CONFIG.MAX_LEVEL) return; // 최대 레벨 도달 시 방어
     handleInteractionSfx('click');
     const nextLevel = level + 1;
     setLevel(nextLevel);
@@ -873,9 +874,22 @@ const GameCanvas: React.FC<Props> = ({
       )}
       {gameState === GameState.LEVEL_CLEAR && (
         <div className="absolute inset-0 bg-black/40 backdrop-blur-3xl flex flex-col items-center justify-center text-center p-[8%] z-50 animate-fade-in border-none">
-           <div className="text-yellow-400 pixel-font text-[5svh] mb-[6svh] font-bold pixel-outline uppercase italic whitespace-nowrap">Level Clear!</div>
-           <div className="text-white pixel-font text-[2.5svh] mb-[10svh] font-bold pixel-outline uppercase whitespace-nowrap">Total Score<br/><span className="text-[8svh] text-yellow-400 mt-[2svh] block">{score}</span></div>
-           <button onClick={handleNextLevel} onMouseEnter={() => handleInteractionSfx('hover')} className="w-full max-w-[320px] bg-yellow-400 text-black py-[5%] rounded-[2svh] font-bold text-[2.5svh] pixel-font shadow-[0_0.6svh_0_#b8860b] border-2 border-black active:translate-y-1 whitespace-nowrap uppercase">Next Stage</button>
+           {level >= GAME_CONFIG.MAX_LEVEL ? (
+             <>
+               <div className="text-yellow-400 pixel-font text-[5svh] mb-[6svh] font-bold pixel-outline uppercase italic whitespace-nowrap animate-yellow-sparkle">GAME CLEAR!</div>
+               <div className="text-white pixel-font text-[2.5svh] mb-[10svh] font-bold pixel-outline uppercase whitespace-nowrap">Final Score<br/><span className="text-[8svh] text-yellow-400 mt-[2svh] block">{score}</span></div>
+               <div className="space-y-[3svh] w-full max-w-[320px]">
+                 <button onClick={handleSubmitScore} onMouseEnter={() => handleInteractionSfx('hover')} className="w-full bg-yellow-400 text-black py-[5%] rounded-[2svh] font-bold text-[2.2svh] pixel-font shadow-[0_0.6svh_0_#b8860b] border-2 border-black uppercase tracking-wide whitespace-nowrap">랭킹보기</button>
+                 <button onClick={() => { handleInteractionSfx('click', 'CLICK'); resetGame(); randomizeBGM(); setGameState(GameState.READY_TO_START); }} onMouseEnter={() => handleInteractionSfx('hover')} className="w-full bg-white text-black py-[5%] rounded-[2svh] font-bold text-[2.2svh] pixel-font shadow-[0_0.6svh_0_#ccc] border-2 border-black uppercase tracking-wide whitespace-nowrap">다시하기</button>
+               </div>
+             </>
+           ) : (
+             <>
+               <div className="text-yellow-400 pixel-font text-[5svh] mb-[6svh] font-bold pixel-outline uppercase italic whitespace-nowrap">Level Clear!</div>
+               <div className="text-white pixel-font text-[2.5svh] mb-[10svh] font-bold pixel-outline uppercase whitespace-nowrap">Total Score<br/><span className="text-[8svh] text-yellow-400 mt-[2svh] block">{score}</span></div>
+               <button onClick={handleNextLevel} onMouseEnter={() => handleInteractionSfx('hover')} className="w-full max-w-[320px] bg-yellow-400 text-black py-[5%] rounded-[2svh] font-bold text-[2.5svh] pixel-font shadow-[0_0.6svh_0_#b8860b] border-2 border-black active:translate-y-1 whitespace-nowrap uppercase">Next Stage</button>
+             </>
+           )}
            <Confetti />
         </div>
       )}
