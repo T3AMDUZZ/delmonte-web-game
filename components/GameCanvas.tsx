@@ -482,7 +482,7 @@ const GameCanvas: React.FC<Props> = ({
     } else {
       lastCrossSpawnScore.current = Math.floor(scoreRef.current / 500) * 500;
     }
-    speedRef.current = GAME_CONFIG.INITIAL_BALL_SPEED + (lvl - 1) * 0.15;
+    speedRef.current = GAME_CONFIG.INITIAL_BALL_SPEED + (lvl - 1) * GAME_CONFIG.SPEED_INCREMENT;
     paddleRef.current = {
       x: (GAME_CONFIG.CANVAS_WIDTH - GAME_CONFIG.PADDLE_WIDTH) / 2,
       w: Math.max(GAME_CONFIG.PADDLE_WIDTH / 3, GAME_CONFIG.PADDLE_WIDTH * Math.pow(GAME_CONFIG.PADDLE_SHRINK_FACTOR, lvl - 1))
@@ -490,7 +490,7 @@ const GameCanvas: React.FC<Props> = ({
     ballsRef.current = [{
       x: GAME_CONFIG.CANVAS_WIDTH / 2,
       y: GAME_CONFIG.CANVAS_HEIGHT - (PADDLE_Y_FROM_BOTTOM + 20),
-      dx: speedRef.current * (Math.random() > 0.5 ? 1 : -1),
+      dx: speedRef.current * 0.5 * (Math.random() > 0.5 ? 1 : -1),
       dy: -speedRef.current,
       radius: GAME_CONFIG.BALL_RADIUS,
       active: true
