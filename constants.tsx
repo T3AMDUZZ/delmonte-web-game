@@ -18,8 +18,8 @@ export const GAME_CONFIG = {
   PADDLE_SHRINK_MIN: 40,
   PADDLE_SHRINK_FACTOR: 0.9,
   INSTAGRAM_URL: 'https://www.instagram.com/delmontekorea/',
-  ADMIN_SECRET: 'retro99',
-  KAKAO_JS_KEY: '128f6c3fb91331364676332dcccae4cb',
+  ADMIN_SECRET: import.meta.env.VITE_ADMIN_SECRET || 'retro99',
+  KAKAO_JS_KEY: import.meta.env.VITE_KAKAO_JS_KEY || '',
   ASSETS: {
     BACKGROUND_PC: './assets/images/background_pc.png',
     BACKGROUND_MOBILE: './assets/images/background_mobile.png',
