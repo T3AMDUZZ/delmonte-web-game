@@ -13,9 +13,10 @@ export const GAME_CONFIG = {
   BRICK_HEIGHT: 26,
   BRICK_PADDING: 4,
   BRICK_OFFSET_TOP: 80,
-  INITIAL_BALL_SPEED: 1.8, // 레벨1 느긋하게 시작, 3단계까지 점진적 증가
-  SPEED_INCREMENT: 0.4, // 레벨당 속도 증가폭 (3단계 제한이므로 넓게)
-  MAX_LEVEL: 3, // 최대 레벨 (3단계에서 게임 클리어)
+  INITIAL_BALL_SPEED: 1.8, // 레벨1 시작 속도
+  SPEED_INCREMENT: 0.37, // 레벨당 속도 증가폭
+  MAX_BALL_SPEED: 4.0, // 7단계 이후 고정 속도
+  SPEED_CAP: 4.5, // 절대 최대값
   PADDLE_SHRINK_MIN: 40,
   PADDLE_SHRINK_FACTOR: 0.9,
   INSTAGRAM_URL: 'https://www.instagram.com/delmontekorea/',
