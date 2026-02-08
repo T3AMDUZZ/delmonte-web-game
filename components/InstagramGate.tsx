@@ -83,12 +83,12 @@ const InstagramGate: React.FC<Props> = ({ onFollowed, sfxVolume, isSfxMuted }) =
         <button 
           onClick={handleFollow}
           onMouseEnter={() => handleInteractionSfx('hover')}
-          className="bg-white/90 text-blue-600 px-[5%] py-[5%] rounded-[2svh] font-bold text-[2svh] shadow-[0_0.6svh_0_rgba(0,0,0,0.2)] active:translate-y-[0.3svh] active:shadow-none transition-all pixel-font border-none w-full max-w-[320px] hover:bg-white whitespace-nowrap"
+          className="bg-white/90 text-blue-600 px-[5%] py-[5%] rounded-[2svh] font-bold text-[2svh] shadow-[0_0.6svh_0_rgba(0,0,0,0.2)] active:translate-y-[0.3svh] active:shadow-none transition-all pixel-font leading-none border-none w-full max-w-[320px] hover:bg-white whitespace-nowrap flex items-center justify-center"
         >
           팔로우 하고 게임하기
         </button>
 
-        <div className="text-white pixel-font text-[1.4svh] bg-black/30 py-[2%] px-[8%] rounded-full inline-block backdrop-blur-sm whitespace-nowrap">
+        <div className="text-white pixel-font text-[1.4svh] leading-none bg-black/30 py-[2.5%] px-[8%] rounded-full inline-flex items-center justify-center backdrop-blur-sm whitespace-nowrap">
           델몬트 공식 인스타그램을 팔로우해주세요!
         </div>
       </div>

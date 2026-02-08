@@ -54,10 +54,10 @@ const Confetti: React.FC = () => {
   );
 };
 
-const GameCanvas: React.FC<Props> = ({ 
-  gameState, setGameState, user, onStart, goToRanking,
-  bgmVolume, setBgmVolume, isBgmMuted, setIsBgmMuted,
-  sfxVolume, setSfxVolume, isSfxMuted, setIsSfxMuted
+const GameCanvas: React.FC<Props> = ({
+  gameState, setGameState, user: _user, onStart, goToRanking,
+  bgmVolume, setBgmVolume, isBgmMuted, setIsBgmMuted: _setIsBgmMuted,
+  sfxVolume, setSfxVolume, isSfxMuted, setIsSfxMuted: _setIsSfxMuted
 }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [score, setScore] = useState<number>(0);
@@ -782,7 +782,7 @@ const GameCanvas: React.FC<Props> = ({
            <div className="relative z-10 flex flex-col items-center justify-between h-full w-full px-[8%]">
              <div className="absolute top-[3svh] left-0 right-0 px-[6%] flex justify-end items-center z-[200] pointer-events-none">
                <button onClick={toggleHelp} onMouseEnter={() => handleInteractionSfx('hover')} className="pointer-events-auto w-[4.5svh] h-[4.5svh] flex items-center justify-center bg-white/30 hover:bg-white/50 rounded-full border border-white/40 backdrop-blur-md transition-all active:scale-95 shadow-lg">
-                 <span className="text-white font-bold text-[3.2svh] pixel-font">?</span>
+                 <span className="text-white font-bold text-[2.8svh] pixel-font leading-none translate-y-[0.1svh]">?</span>
                </button>
              </div>
              <div className="h-[12svh] w-full flex items-center justify-center mt-[15.5svh]"><img src={GAME_CONFIG.ASSETS.BRAND_LOGO} alt="Brand Logo" className="max-h-full w-auto object-contain drop-shadow-md" /></div>
@@ -794,7 +794,7 @@ const GameCanvas: React.FC<Props> = ({
                <button onClick={toggleOptions} onMouseEnter={() => { setHoveredButton('OPTION'); handleInteractionSfx('hover'); }} onMouseLeave={() => setHoveredButton(null)} className="text-white text-[2.6svh] font-bold pixel-font flex items-center transition-all whitespace-nowrap drop-shadow-[0_0px_4px_rgba(0,0,0,1)] uppercase">{hoveredButton === 'OPTION' && <span className="mr-[1.5svh]">▶</span>} OPTION</button>
                <div className="flex flex-col items-center gap-[1svh] w-full mt-[0svh]">
                  <button onClick={handleKakaoLink} onMouseEnter={() => { setHoveredButton('KAKAO'); handleInteractionSfx('hover'); }} onMouseLeave={() => setHoveredButton(null)} className="text-yellow-300 text-[2.6svh] font-bold pixel-font flex items-center transition-all whitespace-nowrap drop-shadow-[0_0px_4px_rgba(0,0,0,1)] uppercase">{hoveredButton === 'KAKAO' && <span className="mr-[1.5svh]">▶</span>} KAKAO LOGIN</button>
-                 <div className="text-[1.3svh] text-white/100 pixel-font tracking-tighter bg-black/20 px-[4%] py-[1.5%] rounded-full uppercase whitespace-nowrap">랭킹 등록을 위해 로그인해주세요</div>
+                 <div className="text-[1.3svh] text-white/100 pixel-font tracking-tighter leading-none bg-black/20 px-[4%] py-[2%] rounded-full uppercase whitespace-nowrap flex items-center justify-center">랭킹 등록을 위해 로그인해주세요</div>
                </div>
              </div>
            </div>
