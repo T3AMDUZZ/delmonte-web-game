@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { supabaseService } from '../services/supabase';
 import { ScoreEntry } from '../types';
 import { GAME_CONFIG } from '../constants';
+import { sfxPool } from '../services/audioPool';
 
 interface Props {
   onBack: () => void;
@@ -23,9 +24,7 @@ const AdminPanel: React.FC<Props> = ({ onBack, sfxVolume, isSfxMuted }) => {
 
   const playClickSfx = () => {
     if (isSfxMuted) return;
-    const audio = new Audio(GAME_CONFIG.ASSETS.AUDIO.CLICK);
-    audio.volume = sfxVolume;
-    audio.play().catch(() => {});
+    sfxPool.play('CLICK', sfxVolume);
   };
 
   useEffect(() => {

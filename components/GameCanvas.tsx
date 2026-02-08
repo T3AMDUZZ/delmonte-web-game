@@ -2,6 +2,7 @@
 import React, { useRef, useEffect, useState, useCallback } from 'react';
 import { GameState, BrickType, Brick, Ball } from '../types';
 import { GAME_CONFIG, FRUIT_COLORS } from '../constants';
+import { sfxPool } from '../services/audioPool';
 import { supabaseService } from '../services/supabase';
 
 declare global {
@@ -99,25 +100,15 @@ const GameCanvas: React.FC<Props> = ({
   useEffect(() => { isCrossActiveRef.current = isCrossActive; }, [isCrossActive]);
   useEffect(() => { pauseResumeCountdownRef.current = pauseResumeCountdown; }, [pauseResumeCountdown]);
 
+  useEffect(() => {
+    Object.entries(GAME_CONFIG.ASSETS.AUDIO).forEach(([key, src]) => {
+      if (!key.startsWith('BGM')) sfxPool.preload(key, src);
+    });
+  }, []);
+
   const triggerSfx = useCallback((type: keyof typeof GAME_CONFIG.ASSETS.AUDIO) => {
     if (isSfxMutedRef.current || sfxVolumeRef.current <= 0) return;
-    const audioPath = GAME_CONFIG.ASSETS.AUDIO[type];
-    if (!audioPath) return;
-    
-    try {
-      const audio = new Audio(audioPath);
-      audio.volume = sfxVolumeRef.current;
-      audio.addEventListener('ended', () => {
-        audio.removeAttribute('src');
-        audio.load();
-      });
-      const playPromise = audio.play();
-      if (playPromise !== undefined) {
-        playPromise.catch(() => {});
-      }
-    } catch (e) {
-      console.error("SFX playback failed", e);
-    }
+    sfxPool.play(type, sfxVolumeRef.current);
   }, []);
 
   const paddleRef = useRef({ 
@@ -545,7 +536,10 @@ const GameCanvas: React.FC<Props> = ({
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
     let animationId: number;
-    const draw = () => {
+    let lastTime = 0;
+    const draw = (timestamp: number = 0) => {
+      const delta = lastTime ? (timestamp - lastTime) / (1000 / 60) : 1;
+      lastTime = timestamp;
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       bricksRef.current.forEach(brick => {
         if (!brick.active) return;
@@ -565,7 +559,7 @@ const GameCanvas: React.FC<Props> = ({
       ballsRef.current.forEach(ball => {
         if (!ball.active) return;
         if (gameState === GameState.PLAYING && !isPausedRef.current && !isCrossActiveRef.current && pauseResumeCountdownRef.current === 0) {
-          ball.x += ball.dx; ball.y += ball.dy;
+          ball.x += ball.dx * delta; ball.y += ball.dy * delta;
           if (ball.x + ball.radius > canvas.width) { ball.x = canvas.width - ball.radius; ball.dx = -Math.abs(ball.dx); playRandomHit(); }
           else if (ball.x - ball.radius < 0) { ball.x = ball.radius; ball.dx = Math.abs(ball.dx); playRandomHit(); }
           if (ball.y - ball.radius < CEILING_Y) { ball.y = CEILING_Y + ball.radius; ball.dy = Math.abs(ball.dy); playRandomHit(); }
@@ -762,11 +756,9 @@ const GameCanvas: React.FC<Props> = ({
           <div className="flex items-center min-w-0 text-white pixel-font pixel-outline leading-none"><span className="text-[1.6svh] text-yellow-300 font-bold whitespace-nowrap leading-none">SCORE: {score.toString().padStart(6, '0')}</span></div>
           <div className="flex items-center min-w-0 gap-[1svh] pointer-events-auto">
             <div className="flex items-center min-w-0 text-white pixel-font pixel-outline leading-none"><span className="text-[1.6svh] font-bold whitespace-nowrap leading-none">STAGE: {level}</span></div>
-            {gameState === GameState.PLAYING && !isPaused && !isCrossActive && pauseResumeCountdown === 0 && (
-              <button onClick={handlePause} onMouseEnter={() => handleInteractionSfx('hover')} className="w-[3.5svh] h-[3.5svh] flex-shrink-0 flex items-center justify-center bg-white/30 hover:bg-white/50 rounded-full border border-white/40 backdrop-blur-md transition-all active:scale-95 shadow-lg">
-                <div className="flex gap-[0.4svh]"><div className="w-[0.5svh] h-[1.4svh] bg-white rounded-full"></div><div className="w-[0.5svh] h-[1.4svh] bg-white rounded-full"></div></div>
-              </button>
-            )}
+            <button onClick={handlePause} onMouseEnter={() => handleInteractionSfx('hover')} className={`w-[3.5svh] h-[3.5svh] flex-shrink-0 flex items-center justify-center bg-white/30 hover:bg-white/50 rounded-full border border-white/40 sm:backdrop-blur-md transition-all active:scale-95 shadow-lg ${gameState === GameState.PLAYING && !isPaused && !isCrossActive && pauseResumeCountdown === 0 ? '' : 'invisible'}`}>
+              <div className="flex gap-[0.4svh]"><div className="w-[0.5svh] h-[1.4svh] bg-white rounded-full"></div><div className="w-[0.5svh] h-[1.4svh] bg-white rounded-full"></div></div>
+            </button>
           </div>
         </div>
       )}
@@ -781,7 +773,7 @@ const GameCanvas: React.FC<Props> = ({
           <div className="liquid-glass-overlay" />
            <div className="relative z-10 flex flex-col items-center justify-between h-full w-full px-[8%]">
              <div className="absolute top-[3svh] left-0 right-0 px-[6%] flex justify-end items-center z-[200] pointer-events-none">
-               <button onClick={toggleHelp} onMouseEnter={() => handleInteractionSfx('hover')} className="pointer-events-auto w-[4.5svh] h-[4.5svh] flex items-center justify-center bg-white/30 hover:bg-white/50 rounded-full border border-white/40 backdrop-blur-md transition-all active:scale-95 shadow-lg">
+               <button onClick={toggleHelp} onMouseEnter={() => handleInteractionSfx('hover')} className="pointer-events-auto w-[4.5svh] h-[4.5svh] flex items-center justify-center bg-white/30 hover:bg-white/50 rounded-full border border-white/40 sm:backdrop-blur-md transition-all active:scale-95 shadow-lg">
                  <span className="text-white font-bold text-[2.8svh] pixel-font leading-none translate-y-[0.1svh]">?</span>
                </button>
              </div>
@@ -800,7 +792,7 @@ const GameCanvas: React.FC<Props> = ({
            </div>
 
            {showHelp && (
-             <div className="absolute inset-0 bg-black/50 backdrop-blur-md flex items-center justify-center z-[250] p-[5%] animate-fade-in">
+             <div className="absolute inset-0 bg-black/60 sm:backdrop-blur-md flex items-center justify-center z-[250] p-[5%] animate-fade-in">
                 <div className="bg-white/95 p-[6%] rounded-[3svh] w-full max-w-[320px] shadow-2xl flex flex-col gap-[2svh] text-black border-4 border-yellow-400">
                   <h3 className="pixel-font font-bold text-[2.2svh] mb-[1svh] underline decoration-yellow-400 uppercase text-center whitespace-nowrap">HOW TO PLAY</h3>
                   <div className="flex flex-col gap-[1svh]">
@@ -834,7 +826,7 @@ const GameCanvas: React.FC<Props> = ({
            )}
 
            {showOptions && (
-             <div className="absolute inset-0 bg-black/50 backdrop-blur-md flex items-center justify-center z-50 p-[5%] animate-fade-in">
+             <div className="absolute inset-0 bg-black/60 sm:backdrop-blur-md flex items-center justify-center z-50 p-[5%] animate-fade-in">
                 <div className="bg-white/95 p-[8%] rounded-[3svh] w-full max-w-[300px] shadow-2xl flex flex-col gap-[3svh] text-black border-4 border-yellow-400">
                   <h3 className="pixel-font font-bold text-[2.5svh] mb-[1svh] underline decoration-yellow-400 uppercase text-center whitespace-nowrap">VOLUME</h3>
                   <div className="flex flex-col gap-[1.5svh] text-left">
@@ -852,7 +844,7 @@ const GameCanvas: React.FC<Props> = ({
         </div>
       )}
       {isPaused && (
-        <div className="absolute inset-0 bg-black/30 backdrop-blur-xl flex items-center justify-center z-[120] p-[5%] animate-fade-in">
+        <div className="absolute inset-0 bg-black/50 sm:backdrop-blur-xl flex items-center justify-center z-[120] p-[5%] animate-fade-in">
           <div className="bg-white/95 p-[8%] rounded-[3svh] w-full max-w-[300px] shadow-2xl flex flex-col gap-[2.5svh] text-black border-4 border-yellow-400">
             <h3 className="pixel-font font-bold text-[3svh] mb-[1svh] underline decoration-yellow-400 uppercase text-center tracking-tighter whitespace-nowrap">PAUSED</h3>
             <div className="flex flex-col gap-[2svh] w-full">
@@ -873,7 +865,7 @@ const GameCanvas: React.FC<Props> = ({
         </div>
       )}
       {gameState === GameState.LEVEL_CLEAR && (
-        <div className="absolute inset-0 bg-black/40 backdrop-blur-3xl flex flex-col items-center justify-center text-center p-[8%] z-50 animate-fade-in border-none overflow-visible">
+        <div className="absolute inset-0 bg-black/50 sm:backdrop-blur-3xl flex flex-col items-center justify-center text-center p-[8%] z-50 animate-fade-in border-none overflow-visible">
            <div className="text-yellow-400 pixel-font text-[3.5svh] mb-[3svh] font-bold pixel-outline uppercase italic tracking-tighter whitespace-nowrap">Level Clear!</div>
            <div className="text-white pixel-font text-[2svh] mb-[6svh] font-bold pixel-outline uppercase whitespace-nowrap">Total Score<br/><span className="text-[5svh] text-yellow-400 mt-[1svh] block">{score}</span></div>
            <button onClick={handleNextLevel} onMouseEnter={() => handleInteractionSfx('hover')} className="w-full max-w-[320px] bg-yellow-400 text-black py-[5%] rounded-[2svh] font-bold text-[2.2svh] pixel-font shadow-[0_0.6svh_0_#b8860b] border-2 border-black active:translate-y-1 whitespace-nowrap uppercase">Next Stage</button>
@@ -881,7 +873,7 @@ const GameCanvas: React.FC<Props> = ({
         </div>
       )}
       {gameState === GameState.GAME_OVER && (
-        <div className="absolute inset-0 bg-black/40 backdrop-blur-3xl flex flex-col items-center justify-center text-center p-[8%] z-50 animate-fade-in border-none">
+        <div className="absolute inset-0 bg-black/50 sm:backdrop-blur-3xl flex flex-col items-center justify-center text-center p-[8%] z-50 animate-fade-in border-none">
            <div className="text-red-500 pixel-font text-[3.5svh] mb-[3svh] font-bold pixel-outline uppercase tracking-tighter whitespace-nowrap">Game Over</div>
            <div className="text-white pixel-font text-[2.5svh] mb-[10svh] font-bold pixel-outline uppercase whitespace-nowrap">Final Score<br/><span className="text-[8svh] text-yellow-400 mt-[2svh] block">{score}</span></div>
            <div className="space-y-[3svh] w-full max-w-[320px]">

@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { supabaseService } from '../services/supabase';
 import { ScoreEntry } from '../types';
 import { GAME_CONFIG } from '../constants';
+import { sfxPool } from '../services/audioPool';
 
 declare global {
   interface Window {
@@ -27,9 +28,7 @@ const RankingBoard: React.FC<Props> = ({ onBack, onAdmin, sfxVolume, isSfxMuted,
 
   const playSfx = useCallback((type: keyof typeof GAME_CONFIG.ASSETS.AUDIO) => {
     if (isSfxMuted) return;
-    const audio = new Audio(GAME_CONFIG.ASSETS.AUDIO[type]);
-    audio.volume = sfxVolume;
-    audio.play().catch(() => {});
+    sfxPool.play(type, sfxVolume);
   }, [isSfxMuted, sfxVolume]);
 
   const handleInteractionSfx = useCallback((type: 'hover' | 'click', sfxType: keyof typeof GAME_CONFIG.ASSETS.AUDIO = 'CLICK') => {

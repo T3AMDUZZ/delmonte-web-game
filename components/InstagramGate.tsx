@@ -1,6 +1,7 @@
 
 import React, { useState, useCallback } from 'react';
 import { GAME_CONFIG } from '../constants';
+import { sfxPool } from '../services/audioPool';
 import { supabaseService } from '../services/supabase';
 
 interface Props {
@@ -14,9 +15,7 @@ const InstagramGate: React.FC<Props> = ({ onFollowed, sfxVolume, isSfxMuted }) =
 
   const playSfx = useCallback((type: keyof typeof GAME_CONFIG.ASSETS.AUDIO) => {
     if (isSfxMuted) return;
-    const audio = new Audio(GAME_CONFIG.ASSETS.AUDIO[type]);
-    audio.volume = sfxVolume;
-    audio.play().catch(() => {});
+    sfxPool.play(type, sfxVolume);
   }, [isSfxMuted, sfxVolume]);
 
   const handleInteractionSfx = useCallback((type: 'hover' | 'click') => {
