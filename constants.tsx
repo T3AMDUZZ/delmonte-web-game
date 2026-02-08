@@ -13,8 +13,8 @@ export const GAME_CONFIG = {
   BRICK_HEIGHT: 26,
   BRICK_PADDING: 4,
   BRICK_OFFSET_TOP: 80,
-  INITIAL_BALL_SPEED: 1.8, // 레벨1 시작 속도
-  SPEED_INCREMENT: 0.37, // 레벨당 속도 증가폭
+  INITIAL_BALL_SPEED: 1.3, // 레벨1 시작 속도
+  SPEED_INCREMENT: 0.3, // 레벨당 속도 증가폭
   MAX_BALL_SPEED: 4.0, // 7단계 이후 고정 속도
   SPEED_CAP: 4.5, // 절대 최대값
   PADDLE_SHRINK_MIN: 40,
