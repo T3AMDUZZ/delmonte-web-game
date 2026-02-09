@@ -866,7 +866,7 @@ const GameCanvas: React.FC<Props> = ({
       )}
       {gameState === GameState.LEVEL_CLEAR && (
         <div className="absolute inset-0 bg-black/50 sm:backdrop-blur-3xl flex flex-col items-center justify-center text-center p-[8%] z-50 animate-fade-in border-none overflow-visible">
-           <div className="text-yellow-400 pixel-font text-[3.5svh] mb-[3svh] font-bold pixel-outline uppercase italic tracking-tighter whitespace-nowrap">Level Clear!</div>
+           <div className="text-yellow-400 pixel-font text-[2.8svh] mb-[3svh] font-bold pixel-outline uppercase italic tracking-tighter whitespace-nowrap">Level Clear!</div>
            <div className="text-white pixel-font text-[2svh] mb-[6svh] font-bold pixel-outline uppercase whitespace-nowrap">Total Score<br/><span className="text-[5svh] text-yellow-400 mt-[1svh] block">{score}</span></div>
            <button onClick={handleNextLevel} onMouseEnter={() => handleInteractionSfx('hover')} className="w-full max-w-[320px] bg-yellow-400 text-black py-[5%] rounded-[2svh] font-bold text-[2.2svh] pixel-font shadow-[0_0.6svh_0_#b8860b] border-2 border-black active:translate-y-1 whitespace-nowrap uppercase">Next Stage</button>
            <Confetti />
