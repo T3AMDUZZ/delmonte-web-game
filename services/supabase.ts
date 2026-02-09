@@ -1,80 +1,76 @@
 
+import { createClient } from '@supabase/supabase-js';
 import { ScoreEntry } from '../types';
+import { GAME_CONFIG } from '../constants';
 
-// 실제 환경에서는 @supabase/supabase-js를 사용하지만, 
-// 현재 프로젝트 구조에 맞춰 LocalStorage를 활용한 집계 시스템을 구축합니다.
-const LOCAL_STORAGE_KEY = 'fruit_brick_breaker_scores';
-const ANALYTICS_KEY = 'fruit_brick_breaker_analytics';
+const supabase = createClient(
+  GAME_CONFIG.SUPABASE_URL,
+  GAME_CONFIG.SUPABASE_ANON_KEY
+);
 
 export const supabaseService = {
   async getScores(): Promise<ScoreEntry[]> {
-    const data = localStorage.getItem(LOCAL_STORAGE_KEY);
-    const scores: ScoreEntry[] = data ? JSON.parse(data) : [];
-    // 점수 내림차순 정렬 후 상위 10개 반환
-    return scores.sort((a, b) => b.score - a.score).slice(0, 10);
+    const { data, error } = await supabase
+      .from('scores')
+      .select('*')
+      .order('score', { ascending: false })
+      .limit(10);
+    if (error) { console.warn('getScores 실패:', error); return []; }
+    return data || [];
   },
 
   async submitScore(nickname: string, score: number): Promise<void> {
-    if (!nickname || nickname === 'GUEST') return; // 게스트는 랭킹 등록 제외 (필요 시 변경 가능)
+    if (!nickname || nickname === 'GUEST') return;
 
-    const data = localStorage.getItem(LOCAL_STORAGE_KEY);
-    const scores: ScoreEntry[] = data ? JSON.parse(data) : [];
+    const { data: existing } = await supabase
+      .from('scores')
+      .select('*')
+      .eq('nickname', nickname)
+      .single();
 
-    const existingIndex = scores.findIndex(s => s.nickname === nickname);
-
-    if (existingIndex > -1) {
-      // 기존에 등록된 점수보다 더 높을 때만 등록
-      if (score > scores[existingIndex].score) {
-        scores[existingIndex].score = score;
-        scores[existingIndex].created_at = new Date().toISOString();
-        try {
-          localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(scores));
-        } catch (e) {
-          console.warn('localStorage 저장 실패 (submitScore):', e);
-        }
+    if (existing) {
+      if (score > existing.score) {
+        await supabase
+          .from('scores')
+          .update({ score, created_at: new Date().toISOString() })
+          .eq('nickname', nickname);
       }
     } else {
-      // 신규 등록
-      scores.push({
-        id: Math.random().toString(36).substring(2, 11),
-        nickname,
-        score,
-        created_at: new Date().toISOString()
-      });
-      try {
-        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(scores));
-      } catch (e) {
-        console.warn('localStorage 저장 실패 (submitScore):', e);
-      }
+      await supabase
+        .from('scores')
+        .insert({ nickname, score });
     }
   },
 
-  // 버튼 클릭수 집계 기능
   async trackAction(action: 'instagram_follow' | 'kakao_share'): Promise<void> {
-    const data = localStorage.getItem(ANALYTICS_KEY);
-    const stats = data ? JSON.parse(data) : { instagram_follow: 0, kakao_share: 0 };
-    stats[action] = (stats[action] || 0) + 1;
-    try {
-      localStorage.setItem(ANALYTICS_KEY, JSON.stringify(stats));
-    } catch (e) {
-      console.warn('localStorage 저장 실패 (trackAction):', e);
-    }
+    const { error } = await supabase
+      .from('analytics')
+      .insert({ action });
+    if (error) console.warn('trackAction 실패:', error);
   },
 
-  // 관리자용 집계 데이터 조회
-  async getAnalytics(): Promise<{ instagram_follow: number, kakao_share: number }> {
-    const data = localStorage.getItem(ANALYTICS_KEY);
-    return data ? JSON.parse(data) : { instagram_follow: 0, kakao_share: 0 };
+  async getAnalytics(): Promise<{ instagram_follow: number; kakao_share: number }> {
+    const { data, error } = await supabase
+      .from('analytics')
+      .select('action');
+    if (error || !data) return { instagram_follow: 0, kakao_share: 0 };
+    return {
+      instagram_follow: data.filter(d => d.action === 'instagram_follow').length,
+      kakao_share: data.filter(d => d.action === 'kakao_share').length,
+    };
   },
 
   async getAllScoresForAdmin(): Promise<ScoreEntry[]> {
-     const data = localStorage.getItem(LOCAL_STORAGE_KEY);
-     const scores: ScoreEntry[] = data ? JSON.parse(data) : [];
-     return scores.sort((a, b) => b.score - a.score);
+    const { data, error } = await supabase
+      .from('scores')
+      .select('*')
+      .order('score', { ascending: false });
+    if (error) { console.warn('getAllScoresForAdmin 실패:', error); return []; }
+    return data || [];
   },
 
   async resetScores(): Promise<void> {
-    localStorage.removeItem(LOCAL_STORAGE_KEY);
-    localStorage.removeItem(ANALYTICS_KEY);
+    await supabase.from('scores').delete().neq('id', '');
+    await supabase.from('analytics').delete().neq('id', '');
   }
 };

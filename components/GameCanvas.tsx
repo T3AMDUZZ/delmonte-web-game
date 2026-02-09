@@ -670,17 +670,9 @@ const GameCanvas: React.FC<Props> = ({
     handleInteractionSfx('click');
     if (!window.Kakao) { alert("카카오 SDK를 불러오지 못했습니다."); return; }
     if (!window.Kakao.isInitialized()) { window.Kakao.init(GAME_CONFIG.KAKAO_JS_KEY); }
-    window.Kakao.Auth.login({
-      success: function() {
-        window.Kakao.API.request({
-          url: '/v2/user/me',
-          success: function(res: any) {
-            const nick = res.kakao_account.profile.nickname;
-            localStorage.setItem('kakao_linked_nickname', nick); setNicknameInput(nick);
-            alert(`${nick}님, 카카오 로그인 성공!`);
-          }
-        });
-      }
+    window.Kakao.Auth.authorize({
+      redirectUri: window.location.origin + window.location.pathname,
+      scope: 'profile_nickname',
     });
   };
 

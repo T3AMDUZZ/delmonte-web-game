@@ -22,6 +22,8 @@ export const GAME_CONFIG = {
   INSTAGRAM_URL: 'https://www.instagram.com/delmontekorea/',
   ADMIN_SECRET: import.meta.env.VITE_ADMIN_SECRET || 'retro99',
   KAKAO_JS_KEY: import.meta.env.VITE_KAKAO_JS_KEY || '',
+  SUPABASE_URL: import.meta.env.VITE_SUPABASE_URL || '',
+  SUPABASE_ANON_KEY: import.meta.env.VITE_SUPABASE_ANON_KEY || '',
   ASSETS: {
     BACKGROUND_PC: './assets/images/background_pc.png',
     BACKGROUND_MOBILE: './assets/images/background_mobile.png',
