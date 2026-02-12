@@ -139,6 +139,48 @@ const GameCanvas: React.FC<Props> = ({
   useEffect(() => {
     const savedNick = localStorage.getItem('kakao_linked_nickname');
     if (savedNick) setNicknameInput(savedNick);
+
+    // 카카오 로그인 콜백 처리
+    const params = new URLSearchParams(window.location.search);
+    const code = params.get('code');
+    if (code) {
+      // URL에서 code 파라미터 제거
+      window.history.replaceState({}, '', window.location.pathname);
+
+      if (!window.Kakao) return;
+      if (!window.Kakao.isInitialized()) window.Kakao.init(GAME_CONFIG.KAKAO_JS_KEY);
+
+      window.Kakao.Auth.setAccessToken(code);
+      // code로 직접 토큰 설정은 안 되므로, REST API 방식 대신 Kakao.Auth.login 사용
+      fetch(`https://kauth.kakao.com/oauth/token`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams({
+          grant_type: 'authorization_code',
+          client_id: GAME_CONFIG.KAKAO_JS_KEY,
+          redirect_uri: window.location.origin + window.location.pathname,
+          code: code,
+        }),
+      })
+        .then(res => res.json())
+        .then(tokenData => {
+          if (tokenData.access_token) {
+            window.Kakao.Auth.setAccessToken(tokenData.access_token);
+            window.Kakao.API.request({
+              url: '/v2/user/me',
+              success: (res: any) => {
+                const nickname = res.kakao_account?.profile?.nickname || res.properties?.nickname;
+                if (nickname) {
+                  localStorage.setItem('kakao_linked_nickname', nickname);
+                  setNicknameInput(nickname);
+                }
+              },
+              fail: (err: any) => console.warn('카카오 사용자 정보 요청 실패:', err),
+            });
+          }
+        })
+        .catch(err => console.warn('카카오 토큰 교환 실패:', err));
+    }
   }, []);
 
   const randomizeBGM = useCallback(() => {
