@@ -1,5 +1,5 @@
 
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { GameState } from './types';
 import { GAME_CONFIG } from './constants';
 import InstagramGate from './components/InstagramGate';
@@ -7,8 +7,57 @@ import GameCanvas from './components/GameCanvas';
 import RankingBoard from './components/RankingBoard';
 import AdminPanel from './components/AdminPanel';
 
+declare global {
+  interface Window { Kakao: any; }
+}
+
 const App: React.FC = () => {
-  const [gameState, setGameState] = useState<GameState>(GameState.INSTAGRAM_GATE);
+  const [gameState, setGameState] = useState<GameState>(() => {
+    // 카카오 로그인 콜백이면 인스타 게이트 건너뛰기
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('code')) return GameState.READY_TO_START;
+    return GameState.INSTAGRAM_GATE;
+  });
+
+  // 카카오 로그인 콜백 처리
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const code = params.get('code');
+    if (!code) return;
+
+    window.history.replaceState({}, '', window.location.pathname);
+
+    if (!window.Kakao) return;
+    if (!window.Kakao.isInitialized()) window.Kakao.init(GAME_CONFIG.KAKAO_JS_KEY);
+
+    fetch('https://kauth.kakao.com/oauth/token', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({
+        grant_type: 'authorization_code',
+        client_id: GAME_CONFIG.KAKAO_JS_KEY,
+        redirect_uri: window.location.origin + window.location.pathname,
+        code: code,
+      }),
+    })
+      .then(res => res.json())
+      .then(tokenData => {
+        if (tokenData.access_token) {
+          window.Kakao.Auth.setAccessToken(tokenData.access_token);
+          window.Kakao.API.request({
+            url: '/v2/user/me',
+            success: (res: any) => {
+              const nickname = res.kakao_account?.profile?.nickname || res.properties?.nickname;
+              if (nickname) {
+                localStorage.setItem('kakao_linked_nickname', nickname);
+              }
+            },
+            fail: (err: any) => console.warn('카카오 사용자 정보 요청 실패:', err),
+          });
+        }
+      })
+      .catch(err => console.warn('카카오 토큰 교환 실패:', err));
+  }, []);
   const [user, setUser] = useState<{ id: string; nickname: string } | null>(null);
 
   const [bgmVolume, setBgmVolume] = useState(0.15);
