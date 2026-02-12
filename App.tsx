@@ -41,19 +41,18 @@ const App: React.FC = () => {
       }),
     })
       .then(res => res.json())
-      .then(tokenData => {
+      .then(async (tokenData) => {
         if (tokenData.access_token) {
           window.Kakao.Auth.setAccessToken(tokenData.access_token);
-          window.Kakao.API.request({
-            url: '/v2/user/me',
-            success: (res: any) => {
-              const nickname = res.kakao_account?.profile?.nickname || res.properties?.nickname;
-              if (nickname) {
-                localStorage.setItem('kakao_linked_nickname', nickname);
-              }
-            },
-            fail: (err: any) => console.warn('카카오 사용자 정보 요청 실패:', err),
-          });
+          try {
+            const userRes = await window.Kakao.API.request({ url: '/v2/user/me' });
+            const nickname = userRes.kakao_account?.profile?.nickname || userRes.properties?.nickname;
+            if (nickname) {
+              localStorage.setItem('kakao_linked_nickname', nickname);
+            }
+          } catch (err) {
+            console.warn('카카오 사용자 정보 요청 실패:', err);
+          }
         }
       })
       .catch(err => console.warn('카카오 토큰 교환 실패:', err));
