@@ -148,12 +148,12 @@ const RankingBoard: React.FC<Props> = ({ onBack, onAdmin, sfxVolume, isSfxMuted,
 
       <div className="relative mb-[3svh] text-center flex-shrink-0 z-10">
         <h2 className="pixel-font text-[4svh] sm:text-[4svh] text-yellow-300 font-bold tracking-tight uppercase title-shadow whitespace-nowrap">RANKING TOP 10</h2>
-        <p className="text-[1.3svh] mt-[0.5svh] text-white pixel-font uppercase opacity-100 tracking-tighter whitespace-nowrap" style={{ wordSpacing: '-0.7em' }}>매주 수요일마다 랭킹이 초기화됩니다</p>
+        <p className="text-[1.3svh] mt-[0.5svh] text-white pixel-font uppercase opacity-100 tracking-tighter whitespace-nowrap" style={{ wordSpacing: '-0.2em' }}>매주 수요일마다 랭킹이 초기화됩니다</p>
       </div>
 
       <div className="relative bg-white/15 rounded-[3svh] p-[5%] flex-grow overflow-hidden flex flex-col border border-white/50 shadow-inner z-10">
         {loading ? (
-          <div className="flex-1 flex items-center justify-center pixel-font text-[2svh] font-bold" style={{ wordSpacing: '-0.7em' }}>로딩 중...</div>
+          <div className="flex-1 flex items-center justify-center pixel-font text-[2svh] font-bold" style={{ wordSpacing: '-0.2em' }}>로딩 중...</div>
         ) : (
           <div className="flex-grow flex flex-col justify-between overflow-visible gap-[0.5svh]">
             {Array.from({ length: 10 }, (_, i) => scores[i] || null).map((s, idx) => {
@@ -203,7 +203,7 @@ const RankingBoard: React.FC<Props> = ({ onBack, onAdmin, sfxVolume, isSfxMuted,
           onClick={handleBackClick} 
           onMouseEnter={() => handleInteractionSfx('hover')}
           className="py-[1.4svh] bg-yellow-400 text-black font-bold text-[1.8svh] rounded-[1.5svh] pixel-font shadow-[0_0.3svh_0_#b8860b] border-2 border-black active:translate-y-[0.2svh] active:shadow-none transition-all uppercase whitespace-nowrap overflow-hidden"
-          style={{ wordSpacing: '-0.7em' }}
+          style={{ wordSpacing: '-0.2em' }}
         >
           다시하기
         </button>
@@ -211,7 +211,7 @@ const RankingBoard: React.FC<Props> = ({ onBack, onAdmin, sfxVolume, isSfxMuted,
           onClick={handleShare} 
           onMouseEnter={() => handleInteractionSfx('hover')}
           className="py-[1.4svh] bg-white text-black font-bold text-[1.8svh] rounded-[1.5svh] pixel-font shadow-[0_0.3svh_0_#ccc] border-2 border-black flex items-center justify-center gap-[0.5svh] active:translate-y-[0.2svh] active:shadow-none transition-all uppercase whitespace-nowrap overflow-hidden"
-          style={{ wordSpacing: '-0.7em' }}
+          style={{ wordSpacing: '-0.2em' }}
         >
           공유하기
         </button>

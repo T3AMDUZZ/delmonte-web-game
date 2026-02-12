@@ -682,9 +682,9 @@ const GameCanvas: React.FC<Props> = ({
         <img src={img} className="max-w-full max-h-full object-contain" style={{ imageRendering: 'pixelated' }} alt={title} />
       </div>
       <div className="flex flex-col text-left">
-        <div className="pixel-font font-bold text-[1.8svh] text-black mb-[0.2svh] whitespace-nowrap" style={{ wordSpacing: '-0.7em' }}>{title}</div>
-        <div className="pixel-font text-[1.4svh] text-gray-700 leading-tight break-keep" style={{ wordSpacing: '-0.7em' }}>{main}</div>
-        {sub && <div className="pixel-font text-[1.2svh] text-red-500 mt-[0.3svh] italic font-bold" style={{ wordSpacing: '-0.7em' }}>{sub}</div>}
+        <div className="pixel-font font-bold text-[1.8svh] text-black mb-[0.2svh] whitespace-nowrap" style={{ wordSpacing: '-0.2em' }}>{title}</div>
+        <div className="pixel-font text-[1.4svh] text-gray-700 leading-tight break-keep" style={{ wordSpacing: '-0.2em' }}>{main}</div>
+        {sub && <div className="pixel-font text-[1.2svh] text-red-500 mt-[0.3svh] italic font-bold" style={{ wordSpacing: '-0.2em' }}>{sub}</div>}
       </div>
     </div>
   );
@@ -778,7 +778,7 @@ const GameCanvas: React.FC<Props> = ({
                <button onClick={toggleOptions} onMouseEnter={() => { setHoveredButton('OPTION'); handleInteractionSfx('hover'); }} onMouseLeave={() => setHoveredButton(null)} className="text-white text-[2.6svh] font-bold pixel-font flex items-center transition-all whitespace-nowrap drop-shadow-[0_0px_4px_rgba(0,0,0,1)] uppercase">{hoveredButton === 'OPTION' && <span className="mr-[1.5svh]">▶</span>} OPTION</button>
                <div className="flex flex-col items-center gap-[1svh] w-full mt-[0svh]">
                  <button onClick={handleKakaoLink} onMouseEnter={() => { setHoveredButton('KAKAO'); handleInteractionSfx('hover'); }} onMouseLeave={() => setHoveredButton(null)} className="text-yellow-300 text-[2.6svh] font-bold pixel-font flex items-center transition-all whitespace-nowrap drop-shadow-[0_0px_4px_rgba(0,0,0,1)] uppercase">{hoveredButton === 'KAKAO' && <span className="mr-[1.5svh]">▶</span>} KAKAO LOGIN</button>
-                 <div className="text-[1.3svh] text-white/100 pixel-font tracking-tighter leading-none bg-black/20 px-[4%] py-[2%] rounded-full uppercase whitespace-nowrap flex items-center justify-center" style={{ wordSpacing: '-0.7em' }}>랭킹 등록을 위해 로그인해주세요</div>
+                 <div className="text-[1.3svh] text-white/100 pixel-font tracking-tighter leading-none bg-black/20 px-[4%] py-[2%] rounded-full uppercase whitespace-nowrap flex items-center justify-center" style={{ wordSpacing: '-0.2em' }}>랭킹 등록을 위해 로그인해주세요</div>
                </div>
              </div>
            </div>
@@ -858,9 +858,9 @@ const GameCanvas: React.FC<Props> = ({
       )}
       {gameState === GameState.LEVEL_CLEAR && (
         <div className="absolute inset-0 bg-black/50 sm:backdrop-blur-3xl flex flex-col items-center justify-center text-center p-[8%] z-50 animate-fade-in border-none overflow-visible">
-           <div className="text-yellow-400 pixel-font text-[2.8svh] mb-[3svh] font-bold pixel-outline uppercase italic tracking-tighter whitespace-nowrap">Level Clear!</div>
-           <div className="text-white pixel-font text-[2svh] mb-[6svh] font-bold pixel-outline uppercase whitespace-nowrap">Total Score<br/><span className="text-[5svh] text-yellow-400 mt-[1svh] block">{score}</span></div>
-           <button onClick={handleNextLevel} onMouseEnter={() => handleInteractionSfx('hover')} className="w-full max-w-[320px] bg-yellow-400 text-black py-[5%] rounded-[2svh] font-bold text-[2.2svh] pixel-font shadow-[0_0.6svh_0_#b8860b] border-2 border-black active:translate-y-1 whitespace-nowrap uppercase">Next Stage</button>
+           <div className="text-yellow-400 pixel-font text-[3.5svh] mb-[3svh] font-bold pixel-outline uppercase italic tracking-tighter whitespace-nowrap">Level Clear!</div>
+           <div className="text-white pixel-font text-[2.5svh] mb-[6svh] font-bold pixel-outline uppercase whitespace-nowrap">Total Score<br/><span className="text-[6svh] text-yellow-400 mt-[1svh] block">{score}</span></div>
+           <button onClick={handleNextLevel} onMouseEnter={() => handleInteractionSfx('hover')} className="w-full max-w-[320px] bg-yellow-400 text-black py-[5%] rounded-[2svh] font-bold text-[2.8svh] pixel-font shadow-[0_0.6svh_0_#b8860b] border-2 border-black active:translate-y-1 whitespace-nowrap uppercase">Next Stage</button>
            <Confetti />
         </div>
       )}
@@ -869,8 +869,8 @@ const GameCanvas: React.FC<Props> = ({
            <div className="text-red-500 pixel-font text-[3.5svh] mb-[3svh] font-bold pixel-outline uppercase tracking-tighter whitespace-nowrap">Game Over</div>
            <div className="text-white pixel-font text-[2.5svh] mb-[10svh] font-bold pixel-outline uppercase whitespace-nowrap">Final Score<br/><span className="text-[8svh] text-yellow-400 mt-[2svh] block">{score}</span></div>
            <div className="space-y-[3svh] w-full max-w-[320px]">
-             <button onClick={handleSubmitScore} onMouseEnter={() => handleInteractionSfx('hover')} className="w-full bg-yellow-400 text-black py-[5%] rounded-[2svh] font-bold text-[2.2svh] pixel-font shadow-[0_0.6svh_0_#b8860b] border-2 border-black uppercase tracking-wide whitespace-nowrap uppercase" style={{ wordSpacing: '-0.7em' }}>랭킹보기</button>
-             <button onClick={() => { handleInteractionSfx('click', 'CLICK'); resetGame(); randomizeBGM(); setGameState(GameState.READY_TO_START); }} onMouseEnter={() => handleInteractionSfx('hover')} className="w-full bg-white text-black py-[5%] rounded-[2svh] font-bold text-[2.2svh] pixel-font shadow-[0_0.6svh_0_#ccc] border-2 border-black uppercase tracking-wide whitespace-nowrap uppercase" style={{ wordSpacing: '-0.7em' }}>다시하기</button>
+             <button onClick={handleSubmitScore} onMouseEnter={() => handleInteractionSfx('hover')} className="w-full bg-yellow-400 text-black py-[5%] rounded-[2svh] font-bold text-[2.2svh] pixel-font shadow-[0_0.6svh_0_#b8860b] border-2 border-black uppercase tracking-wide whitespace-nowrap uppercase" style={{ wordSpacing: '-0.2em' }}>랭킹보기</button>
+             <button onClick={() => { handleInteractionSfx('click', 'CLICK'); resetGame(); randomizeBGM(); setGameState(GameState.READY_TO_START); }} onMouseEnter={() => handleInteractionSfx('hover')} className="w-full bg-white text-black py-[5%] rounded-[2svh] font-bold text-[2.2svh] pixel-font shadow-[0_0.6svh_0_#ccc] border-2 border-black uppercase tracking-wide whitespace-nowrap uppercase" style={{ wordSpacing: '-0.2em' }}>다시하기</button>
            </div>
            <Confetti />
         </div>
