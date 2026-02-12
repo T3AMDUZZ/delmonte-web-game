@@ -26,7 +26,7 @@ export const supabaseService = {
       .from('scores')
       .select('*')
       .eq('nickname', nickname)
-      .single();
+      .maybeSingle();
 
     if (existing) {
       if (score > existing.score) {
