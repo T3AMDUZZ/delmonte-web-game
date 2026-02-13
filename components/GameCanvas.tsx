@@ -573,9 +573,18 @@ const GameCanvas: React.FC<Props> = ({
     if (!ctx) return;
     let animationId: number;
     let lastTime = 0;
+    let lastHitSfxTime = 0;
+    const HIT_SFX_COOLDOWN = 50; // 50ms 쿨다운
     const draw = (timestamp: number = 0) => {
-      const delta = lastTime ? (timestamp - lastTime) / (1000 / 60) : 1;
+      const rawDelta = lastTime ? (timestamp - lastTime) / (1000 / 60) : 1;
+      const delta = Math.min(rawDelta, 3); // 최대 3프레임분까지만 허용 (tunneling 방지)
       lastTime = timestamp;
+      const playHitWithCooldown = () => {
+        if (timestamp - lastHitSfxTime > HIT_SFX_COOLDOWN) {
+          playRandomHitRef.current();
+          lastHitSfxTime = timestamp;
+        }
+      };
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       bricksRef.current.forEach(brick => {
         if (!brick.active) return;
@@ -596,15 +605,22 @@ const GameCanvas: React.FC<Props> = ({
         if (!ball.active) return;
         if (gameState === GameState.PLAYING && !isPausedRef.current && !isCrossActiveRef.current && pauseResumeCountdownRef.current === 0) {
           ball.x += ball.dx * delta; ball.y += ball.dy * delta;
-          if (ball.x + ball.radius > canvas.width) { ball.x = canvas.width - ball.radius; ball.dx = -Math.abs(ball.dx); playRandomHitRef.current(); }
-          else if (ball.x - ball.radius < 0) { ball.x = ball.radius; ball.dx = Math.abs(ball.dx); playRandomHitRef.current(); }
-          if (ball.y - ball.radius < CEILING_Y) { ball.y = CEILING_Y + ball.radius; ball.dy = Math.abs(ball.dy); playRandomHitRef.current(); }
+          if (ball.x + ball.radius > canvas.width) { ball.x = canvas.width - ball.radius; ball.dx = -Math.abs(ball.dx); playHitWithCooldown(); }
+          else if (ball.x - ball.radius < 0) { ball.x = ball.radius; ball.dx = Math.abs(ball.dx); playHitWithCooldown(); }
+          if (ball.y - ball.radius < CEILING_Y) { ball.y = CEILING_Y + ball.radius; ball.dy = Math.abs(ball.dy); playHitWithCooldown(); }
           if (ball.y + ball.radius > canvas.height - PADDLE_Y_FROM_BOTTOM && ball.y - ball.radius < canvas.height - PADDLE_Y_FROM_BOTTOM + GAME_CONFIG.PADDLE_HEIGHT && ball.x > paddleRef.current.x && ball.x < paddleRef.current.x + paddleRef.current.w) {
             ball.y = canvas.height - PADDLE_Y_FROM_BOTTOM - ball.radius;
             const hitPos = (ball.x - (paddleRef.current.x + paddleRef.current.w / 2)) / (paddleRef.current.w / 2);
-            ball.dx = hitPos * speedRef.current * 1.5;
-            ball.dy = -Math.abs(ball.dy);
-            playRandomHitRef.current();
+
+            // hitPos로 반사 각도 결정 (최대 ±60도)
+            const maxAngle = Math.PI / 3; // 60도
+            const angle = hitPos * maxAngle;
+            const speed = speedRef.current;
+
+            ball.dx = speed * Math.sin(angle);
+            ball.dy = -speed * Math.cos(angle);
+
+            playHitWithCooldown();
           }
           for (let i = 0; i < bricksRef.current.length; i++) {
             const brick = bricksRef.current[i];
