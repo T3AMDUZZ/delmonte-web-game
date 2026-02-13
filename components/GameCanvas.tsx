@@ -641,12 +641,12 @@ const GameCanvas: React.FC<Props> = ({
   const toggleOptions = () => { handleInteractionSfx('click'); setShowOptions(!showOptions); };
   const toggleHelp = () => { handleInteractionSfx('click'); setShowHelp(!showHelp); };
 
-  const handleSubmitScore = () => {
+  const handleSubmitScore = async () => {
     handleInteractionSfx('click', 'RANKING_OPEN');
     const currentFinalScore = scoreRef.current;
     localStorage.setItem('last_session_score', currentFinalScore.toString());
     const finalNick = localStorage.getItem('kakao_linked_nickname') || nicknameInput;
-    if(finalNick && finalNick !== 'GUEST') supabaseService.submitScore(finalNick, currentFinalScore);
+    if(finalNick && finalNick !== 'GUEST') await supabaseService.submitScore(finalNick, currentFinalScore);
     goToRanking();
   };
 
