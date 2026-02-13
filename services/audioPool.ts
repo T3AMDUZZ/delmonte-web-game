@@ -10,8 +10,9 @@ class AudioPool {
 
   constructor() {
     if (AUDIO_CONTEXT) {
-      this.gainNode = AUDIO_CONTEXT.createGain();
-      this.gainNode.connect(AUDIO_CONTEXT.destination);
+      const gain = AUDIO_CONTEXT.createGain();
+      gain.connect(AUDIO_CONTEXT.destination);
+      this.gainNode = gain;
     }
     this.setupIOSUnlock();
   }
