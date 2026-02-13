@@ -110,13 +110,14 @@ const App: React.FC = () => {
 
       {/* 메인 게임 컨테이너 (레터박스 + Glassmorphism 프레임 적용) */}
       <main className="relative z-[50] flex-grow w-full max-w-[100vw] flex items-center justify-center pointer-events-none overflow-hidden p-4 sm:p-6">
-        <div 
+        <div
           className="relative h-full aspect-[9/16] pointer-events-auto
-                        overflow-hidden flex flex-col 
+                        overflow-hidden flex flex-col
                         bg-[#ffffff]/0 backdrop-blur-xl
                         bg-white/0 backdrop-blur-lg
                         rounded-2xl border border-white/30
-                        shadow-2xl transition-all duration-500 ease-out"
+                        shadow-2xl transition-all duration-500 ease-out
+                        sm:scale-[1.15] sm:origin-center"
         >
           {/* 기본 모바일 배경 깔기 */}
           <div 
