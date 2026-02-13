@@ -67,9 +67,7 @@ const RankingBoard: React.FC<Props> = ({ onBack, onAdmin, sfxVolume, isSfxMuted,
     return () => {
       if (bgmRef.current) {
         bgmRef.current.pause();
-        bgmRef.current.removeAttribute('src');
-        bgmRef.current.load();
-        bgmRef.current = null;
+        bgmRef.current.src = '';
       }
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps

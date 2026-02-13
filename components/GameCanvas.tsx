@@ -91,6 +91,11 @@ const GameCanvas: React.FC<Props> = ({
   const pauseResumeCountdownRef = useRef(pauseResumeCountdown);
 
   const handleBrickBreakRef = useRef<((brick: Brick, sourceBall?: Ball, isEffect?: boolean) => void) | null>(null);
+  const triggerSfxRef = useRef<(type: keyof typeof GAME_CONFIG.ASSETS.AUDIO) => void>(null!);
+  const playRandomHitRef = useRef<() => void>(null!);
+  const setGameStateRef = useRef<(state: GameState) => void>(setGameState);
+  const spawnCrossItemRef = useRef<(() => void) | null>(null);
+  const levelRef = useRef<number>(1);
 
   useEffect(() => { bgmVolumeRef.current = bgmVolume; }, [bgmVolume]);
   useEffect(() => { isBgmMutedRef.current = isBgmMuted; }, [isBgmMuted]);
@@ -99,6 +104,20 @@ const GameCanvas: React.FC<Props> = ({
   useEffect(() => { isPausedRef.current = isPaused; }, [isPaused]);
   useEffect(() => { isCrossActiveRef.current = isCrossActive; }, [isCrossActive]);
   useEffect(() => { pauseResumeCountdownRef.current = pauseResumeCountdown; }, [pauseResumeCountdown]);
+
+  // 200ms마다 scoreRef를 score state에 동기화 (게임 루프 내 setState 호출 제거)
+  useEffect(() => {
+    if (gameState === GameState.PLAYING) {
+      const interval = setInterval(() => {
+        setScore(scoreRef.current);
+      }, 200);
+      return () => clearInterval(interval);
+    }
+    // 게임 종료/레벨 클리어 시 최종 점수 동기화
+    if (gameState === GameState.LEVEL_CLEAR || gameState === GameState.GAME_OVER) {
+      setScore(scoreRef.current);
+    }
+  }, [gameState]);
 
   useEffect(() => {
     Object.entries(GAME_CONFIG.ASSETS.AUDIO).forEach(([key, src]) => {
@@ -120,6 +139,7 @@ const GameCanvas: React.FC<Props> = ({
   const scoreRef = useRef<number>(0);
   const speedRef = useRef<number>(GAME_CONFIG.INITIAL_BALL_SPEED);
   const lastCrossSpawnScore = useRef<number>(0);
+  const activeBrickCountRef = useRef<number>(0);
 
   const PADDLE_Y_FROM_BOTTOM = 70;
   const CEILING_Y = 80; 
@@ -142,17 +162,28 @@ const GameCanvas: React.FC<Props> = ({
   }, []);
 
   const randomizeBGM = useCallback(() => {
+    // 기존 BGM 정지
     if (bgmAudio.current) {
       bgmAudio.current.pause();
-      bgmAudio.current.removeAttribute('src');
-      bgmAudio.current.load();
-      bgmAudio.current = null;
     }
+
     const track = Math.floor(Math.random() * 5) + 1;
     const bgmName = `BGM${track}` as keyof typeof GAME_CONFIG.ASSETS.AUDIO;
-    const bgm = new Audio(GAME_CONFIG.ASSETS.AUDIO[bgmName]);
-    bgm.loop = true;
-    bgmAudio.current = bgm;
+
+    if (!bgmAudio.current) {
+      // 최초 1회만 Audio 객체 생성
+      bgmAudio.current = new Audio();
+      bgmAudio.current.loop = true;
+    }
+
+    // src만 교체 (Audio 객체 재사용으로 iOS gesture context 유지)
+    bgmAudio.current.src = GAME_CONFIG.ASSETS.AUDIO[bgmName];
+    bgmAudio.current.volume = isBgmMutedRef.current ? 0 : bgmVolumeRef.current;
+    bgmAudio.current.play().catch((e) => {
+      if (e.name === 'NotAllowedError') {
+        console.warn('[BGM] User gesture required, will retry on next interaction');
+      }
+    });
   }, []);
 
   useEffect(() => {
@@ -162,12 +193,10 @@ const GameCanvas: React.FC<Props> = ({
     return () => {
       if (bgmAudio.current) {
         bgmAudio.current.pause();
-        bgmAudio.current.removeAttribute('src');
-        bgmAudio.current.load();
-        bgmAudio.current = null;
       }
     };
-  }, [randomizeBGM]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleInteractionSfx = useCallback((type: 'hover' | 'click', sfxType: keyof typeof GAME_CONFIG.ASSETS.AUDIO = 'CLICK') => {
     const isMobile = window.matchMedia("(pointer: coarse)").matches;
@@ -181,21 +210,30 @@ const GameCanvas: React.FC<Props> = ({
     triggerSfx(randomHit);
   }, [triggerSfx]);
 
+  // 게임 루프 의존성 최소화를 위한 ref 동기화
+  useEffect(() => { triggerSfxRef.current = triggerSfx; }, [triggerSfx]);
+  useEffect(() => { playRandomHitRef.current = playRandomHit; }, [playRandomHit]);
+  useEffect(() => { setGameStateRef.current = setGameState; }, [setGameState]);
+  useEffect(() => { levelRef.current = level; }, [level]);
+
   const handleImgError = (id: string) => {
     setImgErrors(prev => ({ ...prev, [id]: true }));
   };
 
   useEffect(() => {
-    if (bgmAudio.current) {
-      if (!isCrossActive && !isCrossFadingRef.current) {
-        bgmAudio.current.volume = isBgmMuted ? 0 : bgmVolume;
-      }
-      const isMenuOrPlaying = (gameState === GameState.READY_TO_START || gameState === GameState.COUNTDOWN || gameState === GameState.PLAYING);
-      if (isMenuOrPlaying && !isBgmMuted && !isCrossActive) {
-        bgmAudio.current.play().catch(() => {});
-      } else if (!isCrossActive) {
-        bgmAudio.current.pause();
-      }
+    if (!bgmAudio.current) return;
+    if (!isCrossActive && !isCrossFadingRef.current) {
+      bgmAudio.current.volume = isBgmMuted ? 0 : bgmVolume;
+    }
+    const isMenuOrPlaying = (gameState === GameState.READY_TO_START || gameState === GameState.COUNTDOWN || gameState === GameState.PLAYING);
+    if (isMenuOrPlaying && !isBgmMuted && !isCrossActive) {
+      bgmAudio.current.play().catch((e) => {
+        if (e.name === 'NotAllowedError') {
+          console.warn('[BGM] Blocked by autoplay policy');
+        }
+      });
+    } else if (!isCrossActive) {
+      bgmAudio.current.pause();
     }
   }, [gameState, bgmVolume, isBgmMuted, isCrossActive]);
 
@@ -256,9 +294,11 @@ const GameCanvas: React.FC<Props> = ({
 
   const handleBrickBreak = useCallback((brick: Brick, sourceBall?: Ball, isEffect: boolean = false) => {
     if (!brick.active) return;
-    brick.active = false; 
+    brick.active = false;
+    if (brick.type !== BrickType.GRAY) {
+      activeBrickCountRef.current--;
+    }
     scoreRef.current += (brick.type === BrickType.BOMB || brick.type === BrickType.CROSS || brick.type === BrickType.RAINBOW) ? 15 : 10;
-    setScore(scoreRef.current);
     
     const shouldAnimate = isEffect || brick.type === BrickType.BOMB || brick.type === BrickType.CROSS;
     if (shouldAnimate) {
@@ -290,11 +330,14 @@ const GameCanvas: React.FC<Props> = ({
       triggerCrossEffect(brick);
     } else if (brick.type === BrickType.RAINBOW) {
       triggerSfx('RAINBOW_HIT');
-      if (sourceBall) {
-        ballsRef.current.push({ ...sourceBall, dx: -sourceBall.dx, dy: -Math.abs(sourceBall.dy), active: true });
-      } else if (ballsRef.current.length > 0) {
-        const activeBall = ballsRef.current.find(b => b.active) || ballsRef.current[0];
-        ballsRef.current.push({ ...activeBall, dx: -activeBall.dx, dy: -Math.abs(activeBall.dy), active: true });
+      const activeBallCount = ballsRef.current.filter(b => b.active).length;
+      if (activeBallCount < 15) {
+        if (sourceBall) {
+          ballsRef.current.push({ ...sourceBall, dx: -sourceBall.dx, dy: -Math.abs(sourceBall.dy), active: true });
+        } else if (ballsRef.current.length > 0) {
+          const activeBall = ballsRef.current.find(b => b.active) || ballsRef.current[0];
+          ballsRef.current.push({ ...activeBall, dx: -activeBall.dx, dy: -Math.abs(activeBall.dy), active: true });
+        }
       }
     } else {
       triggerSfx('BREAK');
@@ -462,9 +505,12 @@ const GameCanvas: React.FC<Props> = ({
         width: brickWidth, height: brickWidth,
         type: BrickType.CROSS, hits: 1, active: true
       });
+      activeBrickCountRef.current++;
       triggerSfx('CROSS_APPEAR');
     }
   }, [triggerSfx]);
+
+  useEffect(() => { spawnCrossItemRef.current = spawnCrossItem; }, [spawnCrossItem]);
 
   const resetGame = useCallback((keepScore = false, lvlOverride?: number) => {
     const lvl = lvlOverride ?? level;
@@ -488,6 +534,7 @@ const GameCanvas: React.FC<Props> = ({
       active: true
     }];
     bricksRef.current = initBricks(lvl);
+    activeBrickCountRef.current = bricksRef.current.filter(b => b.active && b.type !== BrickType.GRAY).length;
     setIsPaused(false); setIsCrossActive(false); setPauseResumeCountdown(0); setAnimatingBrickIds(new Set());
   }, [initBricks, level]);
 
@@ -520,17 +567,6 @@ const GameCanvas: React.FC<Props> = ({
   }, [gameState, countdown, resetGame, level]);
 
   useEffect(() => {
-    if (level > 1) {
-      const currentPointsAboveLast = score - lastCrossSpawnScore.current;
-      if (currentPointsAboveLast >= 500) {
-        const count = Math.floor(currentPointsAboveLast / 500);
-        for (let i = 0; i < count; i++) { spawnCrossItem(); }
-        lastCrossSpawnScore.current += count * 500;
-      }
-    }
-  }, [score, level, spawnCrossItem]);
-
-  useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas || (gameState !== GameState.PLAYING && gameState !== GameState.COUNTDOWN)) return;
     const ctx = canvas.getContext('2d');
@@ -560,15 +596,15 @@ const GameCanvas: React.FC<Props> = ({
         if (!ball.active) return;
         if (gameState === GameState.PLAYING && !isPausedRef.current && !isCrossActiveRef.current && pauseResumeCountdownRef.current === 0) {
           ball.x += ball.dx * delta; ball.y += ball.dy * delta;
-          if (ball.x + ball.radius > canvas.width) { ball.x = canvas.width - ball.radius; ball.dx = -Math.abs(ball.dx); playRandomHit(); }
-          else if (ball.x - ball.radius < 0) { ball.x = ball.radius; ball.dx = Math.abs(ball.dx); playRandomHit(); }
-          if (ball.y - ball.radius < CEILING_Y) { ball.y = CEILING_Y + ball.radius; ball.dy = Math.abs(ball.dy); playRandomHit(); }
+          if (ball.x + ball.radius > canvas.width) { ball.x = canvas.width - ball.radius; ball.dx = -Math.abs(ball.dx); playRandomHitRef.current(); }
+          else if (ball.x - ball.radius < 0) { ball.x = ball.radius; ball.dx = Math.abs(ball.dx); playRandomHitRef.current(); }
+          if (ball.y - ball.radius < CEILING_Y) { ball.y = CEILING_Y + ball.radius; ball.dy = Math.abs(ball.dy); playRandomHitRef.current(); }
           if (ball.y + ball.radius > canvas.height - PADDLE_Y_FROM_BOTTOM && ball.y - ball.radius < canvas.height - PADDLE_Y_FROM_BOTTOM + GAME_CONFIG.PADDLE_HEIGHT && ball.x > paddleRef.current.x && ball.x < paddleRef.current.x + paddleRef.current.w) {
             ball.y = canvas.height - PADDLE_Y_FROM_BOTTOM - ball.radius;
             const hitPos = (ball.x - (paddleRef.current.x + paddleRef.current.w / 2)) / (paddleRef.current.w / 2);
             ball.dx = hitPos * speedRef.current * 1.5;
             ball.dy = -Math.abs(ball.dy);
-            playRandomHit();
+            playRandomHitRef.current();
           }
           for (let i = 0; i < bricksRef.current.length; i++) {
             const brick = bricksRef.current[i];
@@ -587,8 +623,8 @@ const GameCanvas: React.FC<Props> = ({
               else if (minO === oB) { ball.y = brick.y + brick.height + ball.radius; ball.dy = Math.abs(ball.dy); }
               if (brick.type !== BrickType.GRAY) {
                 brick.hits--; if (brick.hits <= 0) { handleBrickBreakRef.current?.(brick, ball); }
-                else { playRandomHit(); }
-              } else playRandomHit();
+                else { playRandomHitRef.current(); }
+              } else playRandomHitRef.current();
               break;
             }
           }
@@ -597,19 +633,32 @@ const GameCanvas: React.FC<Props> = ({
         ctx.beginPath(); ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
         ctx.fillStyle = GAME_CONFIG.BALL_COLOR; ctx.fill(); ctx.closePath();
       });
+      // 비활성 공 정리: 배열이 20개를 초과하면 비활성 공 제거
+      if (ballsRef.current.length > 20) {
+        ballsRef.current = ballsRef.current.filter(b => b.active);
+      }
       if (gameState === GameState.PLAYING && !isPausedRef.current && !isCrossActiveRef.current && pauseResumeCountdownRef.current === 0) {
-        if (bricksRef.current.filter(b => b.active && b.type !== BrickType.GRAY).length === 0) {
-          triggerSfx('LEVELUP'); setGameState(GameState.LEVEL_CLEAR); return;
+        // 500점마다 십자 아이템 스폰 (기존 score useEffect 대체)
+        if (levelRef.current > 1) {
+          const currentPointsAboveLast = scoreRef.current - lastCrossSpawnScore.current;
+          if (currentPointsAboveLast >= 500) {
+            const count = Math.floor(currentPointsAboveLast / 500);
+            for (let i = 0; i < count; i++) { spawnCrossItemRef.current?.(); }
+            lastCrossSpawnScore.current += count * 500;
+          }
+        }
+        if (activeBrickCountRef.current <= 0) {
+          triggerSfxRef.current('LEVELUP'); setGameStateRef.current(GameState.LEVEL_CLEAR); return;
         }
         if (ballsRef.current.every(b => !b.active)) {
-          triggerSfx('GAMEOVER'); setGameState(GameState.GAME_OVER); return;
+          triggerSfxRef.current('GAMEOVER'); setGameStateRef.current(GameState.GAME_OVER); return;
         }
       }
       animationId = requestAnimationFrame(draw);
     };
     animationId = requestAnimationFrame(draw);
     return () => cancelAnimationFrame(animationId);
-  }, [gameState, triggerSfx, playRandomHit, setGameState]);
+  }, [gameState]);
 
   const handleInput = (e: React.MouseEvent | React.TouchEvent | React.PointerEvent) => {
     if (gameState !== GameState.PLAYING || isPaused || isCrossActive || pauseResumeCountdown > 0) return;
