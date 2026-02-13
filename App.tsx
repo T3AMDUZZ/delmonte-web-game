@@ -188,7 +188,7 @@ const App: React.FC = () => {
       </main>
 
       {/* 푸터 영역 */}
-      <footer className="w-full h-[7svh] min-h-[45px] flex flex-col items-center justify-center px-2 bg-black text-white/100 font-medium text-center z-[60] border-t border-white/5 flex-shrink-0">
+      <footer className="w-full h-[7svh] min-h-[45px] flex flex-col items-center justify-center px-2 bg-black text-white/100 font-medium text-center z-[60] border-t border-white/5 flex-shrink-0 select-none">
         <p className="text-[min(0.9svh,7.5px)] leading-[1.2] uppercase tracking-tighter w-full max-w-[420px] break-keep">
           DEL MONTE and Del Monte Shield Logo are registered trademarks of Del Monte Foods Corporation II Inc. used under license.
         </p>
