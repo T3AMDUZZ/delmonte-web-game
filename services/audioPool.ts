@@ -1,64 +1,68 @@
-class AudioPool {
-  private pools: Map<string, HTMLAudioElement[]> = new Map();
-  private indices: Map<string, number> = new Map();
-  private poolSize: number;
-  private unlocked = false;
+const AUDIO_CONTEXT = typeof AudioContext !== 'undefined'
+  ? new AudioContext()
+  : typeof (window as any).webkitAudioContext !== 'undefined'
+    ? new (window as any).webkitAudioContext()
+    : null;
 
-  constructor(poolSize = 4) {
-    this.poolSize = poolSize;
+class AudioPool {
+  private buffers: Map<string, AudioBuffer> = new Map();
+  private gainNode: GainNode | null = null;
+
+  constructor() {
+    if (AUDIO_CONTEXT) {
+      this.gainNode = AUDIO_CONTEXT.createGain();
+      this.gainNode.connect(AUDIO_CONTEXT.destination);
+    }
     this.setupIOSUnlock();
   }
 
   private setupIOSUnlock() {
     const unlock = () => {
-      if (this.unlocked) return;
-      const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
-      const buffer = ctx.createBuffer(1, 1, 22050);
-      const source = ctx.createBufferSource();
-      source.buffer = buffer;
-      source.connect(ctx.destination);
-      source.start(0);
-      this.unlocked = true;
-      ['touchstart', 'touchend', 'click'].forEach(e =>
-        document.removeEventListener(e, unlock, true)
-      );
+      if (AUDIO_CONTEXT && AUDIO_CONTEXT.state === 'suspended') {
+        AUDIO_CONTEXT.resume();
+      }
+      document.removeEventListener('touchstart', unlock);
+      document.removeEventListener('touchend', unlock);
+      document.removeEventListener('click', unlock);
     };
-    ['touchstart', 'touchend', 'click'].forEach(e =>
-      document.addEventListener(e, unlock, true)
-    );
+    document.addEventListener('touchstart', unlock, { passive: true });
+    document.addEventListener('touchend', unlock, { passive: true });
+    document.addEventListener('click', unlock);
   }
 
-  preload(key: string, src: string) {
-    if (this.pools.has(key)) return;
-    const pool: HTMLAudioElement[] = [];
-    for (let i = 0; i < this.poolSize; i++) {
-      const audio = new Audio(src);
-      audio.preload = 'auto';
-      pool.push(audio);
+  async preload(key: string, src: string) {
+    if (this.buffers.has(key) || !AUDIO_CONTEXT) return;
+    try {
+      const response = await fetch(src);
+      const arrayBuffer = await response.arrayBuffer();
+      const audioBuffer = await AUDIO_CONTEXT.decodeAudioData(arrayBuffer);
+      this.buffers.set(key, audioBuffer);
+    } catch (e) {
+      console.warn(`[AudioPool] Failed to preload ${key}:`, e);
     }
-    this.pools.set(key, pool);
-    this.indices.set(key, 0);
   }
 
   play(key: string, volume: number) {
-    const pool = this.pools.get(key);
-    if (!pool) return;
-    const idx = this.indices.get(key) || 0;
-    const audio = pool[idx];
-    audio.currentTime = 0;
-    audio.volume = volume;
-    audio.play().catch(() => {});
-    this.indices.set(key, (idx + 1) % pool.length);
-  }
+    if (!AUDIO_CONTEXT || !this.gainNode) return;
+    const buffer = this.buffers.get(key);
+    if (!buffer) return;
 
-  stopAll() {
-    this.pools.forEach(pool => {
-      pool.forEach(audio => {
-        audio.pause();
-        audio.currentTime = 0;
-      });
-    });
+    // AudioContext가 suspended면 resume 시도
+    if (AUDIO_CONTEXT.state === 'suspended') {
+      AUDIO_CONTEXT.resume();
+    }
+
+    const source = AUDIO_CONTEXT.createBufferSource();
+    source.buffer = buffer;
+
+    // 개별 gain node로 볼륨 제어
+    const gainNode = AUDIO_CONTEXT.createGain();
+    gainNode.gain.value = volume;
+    source.connect(gainNode);
+    gainNode.connect(AUDIO_CONTEXT.destination);
+
+    source.start(0);
   }
 }
 
-export const sfxPool = new AudioPool(4);
+export const sfxPool = new AudioPool();

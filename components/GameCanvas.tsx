@@ -639,8 +639,8 @@ const GameCanvas: React.FC<Props> = ({
               else if (minO === oB) { ball.y = brick.y + brick.height + ball.radius; ball.dy = Math.abs(ball.dy); }
               if (brick.type !== BrickType.GRAY) {
                 brick.hits--; if (brick.hits <= 0) { handleBrickBreakRef.current?.(brick, ball); }
-                else { playRandomHitRef.current(); }
-              } else playRandomHitRef.current();
+                else { playHitWithCooldown(); }
+              } else playHitWithCooldown();
               break;
             }
           }
