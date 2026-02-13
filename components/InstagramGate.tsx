@@ -82,7 +82,7 @@ const InstagramGate: React.FC<Props> = ({ onFollowed, sfxVolume, isSfxMuted }) =
         <button 
           onClick={handleFollow}
           onMouseEnter={() => handleInteractionSfx('hover')}
-          className="bg-white/90 text-blue-600 px-[5%] py-[5%] rounded-[2svh] font-bold text-[2svh] shadow-[0_0.6svh_0_rgba(0,0,0,0.2)] active:translate-y-[0.3svh] active:shadow-none transition-all pixel-font leading-none border-none w-full max-w-[320px] hover:bg-white whitespace-nowrap flex items-center justify-center"
+          className="bg-white/90 text-blue-600 px-[5%] py-[5%] rounded-[2svh] font-bold text-[2svh] shadow-[0_0.6svh_0_rgba(0,0,0,0.2)] active:translate-y-[0.3svh] active:shadow-none transition-all pixel-font leading-none border-none w-full max-w-[40svh] hover:bg-white whitespace-nowrap flex items-center justify-center"
           style={{ wordSpacing: '-0.2em' }}
         >
           팔로우 하고 게임하기

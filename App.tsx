@@ -89,6 +89,23 @@ const App: React.FC = () => {
   const goToRanking = () => setGameState(GameState.RANKING);
   const openAdmin = () => setGameState(GameState.ADMIN);
 
+  // PC에서 창 크기/모니터 상관없이 동일한 게임 크기 보장
+  const [pcZoom, setPcZoom] = useState(1);
+  useEffect(() => {
+    const TARGET_HEIGHT = 800;
+    const updateZoom = () => {
+      if (window.innerWidth >= 640) {
+        const z = TARGET_HEIGHT / window.innerHeight;
+        setPcZoom(Math.min(z, 1.0));
+      } else {
+        setPcZoom(1);
+      }
+    };
+    updateZoom();
+    window.addEventListener('resize', updateZoom);
+    return () => window.removeEventListener('resize', updateZoom);
+  }, []);
+
   const shouldDimBackground = gameState === GameState.COUNTDOWN || gameState === GameState.GAME_OVER;
 
   return (
@@ -116,8 +133,8 @@ const App: React.FC = () => {
                         bg-[#ffffff]/0 backdrop-blur-xl
                         bg-white/0 backdrop-blur-lg
                         rounded-2xl border border-white/30
-                        shadow-2xl transition-all duration-500 ease-out
-                        sm:scale-[1.15] sm:origin-center"
+                        shadow-2xl transition-all duration-500 ease-out"
+          style={{ zoom: pcZoom }}
         >
           {/* 기본 모바일 배경 깔기 */}
           <div 

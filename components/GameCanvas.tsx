@@ -770,7 +770,7 @@ const GameCanvas: React.FC<Props> = ({
                </button>
              </div>
              <div className="h-[12svh] w-full flex items-center justify-center mt-[15.5svh]"><img src={GAME_CONFIG.ASSETS.BRAND_LOGO} alt="Brand Logo" className="max-h-full w-auto object-contain drop-shadow-md" /></div>
-             <div className="flex-grow flex items-center justify-center w-full max-w-[350px] pt-[0svh] pb-[5svh] animate-sparkle px-4 overflow-visible">
+             <div className="flex-grow flex items-center justify-center w-full max-w-[44svh] pt-[0svh] pb-[5svh] animate-sparkle px-[2svh] overflow-visible">
                {!imgErrors.mainLogo ? ( <img src={GAME_CONFIG.ASSETS.LOGO_GATE} alt="Title" className="max-h-full w-auto object-contain drop-shadow-[0_0_35px_rgba(255,255,255,0.75)]" onError={() => handleImgError('mainLogo')} /> ) : ( <h1 className="text-[4svh] font-bold text-yellow-200 pixel-font drop-shadow-[4px_4px_0px_rgba(0,0,0,1)] uppercase leading-tight whitespace-nowrap">DELMONT<br/>BRICK BREAKER</h1> )}
              </div>
              <div className="flex flex-col items-center gap-[3svh] w-full mb-[9svh]">
@@ -785,7 +785,7 @@ const GameCanvas: React.FC<Props> = ({
 
            {showHelp && (
              <div className="absolute inset-0 bg-black/60 sm:backdrop-blur-md flex items-center justify-center z-[250] p-[5%] animate-fade-in">
-                <div className="bg-white/95 p-[6%] rounded-[3svh] w-full max-w-[320px] shadow-2xl flex flex-col gap-[2svh] text-black border-4 border-yellow-400">
+                <div className="bg-white/95 p-[6%] rounded-[3svh] w-full max-w-[40svh] shadow-2xl flex flex-col gap-[2svh] text-black border-4 border-yellow-400">
                   <h3 className="pixel-font font-bold text-[2.2svh] mb-[1svh] underline decoration-yellow-400 uppercase text-center whitespace-nowrap">HOW TO PLAY</h3>
                   <div className="flex flex-col gap-[1svh]">
                     <HelpItem 
@@ -819,7 +819,7 @@ const GameCanvas: React.FC<Props> = ({
 
            {showOptions && (
              <div className="absolute inset-0 bg-black/60 sm:backdrop-blur-md flex items-center justify-center z-50 p-[5%] animate-fade-in">
-                <div className="bg-white/95 p-[8%] rounded-[3svh] w-full max-w-[300px] shadow-2xl flex flex-col gap-[3svh] text-black border-4 border-yellow-400">
+                <div className="bg-white/95 p-[8%] rounded-[3svh] w-full max-w-[38svh] shadow-2xl flex flex-col gap-[3svh] text-black border-4 border-yellow-400">
                   <h3 className="pixel-font font-bold text-[2.5svh] mb-[1svh] underline decoration-yellow-400 uppercase text-center whitespace-nowrap">VOLUME</h3>
                   <div className="flex flex-col gap-[1.5svh] text-left">
                     <label className="pixel-font text-[1.5svh] font-bold uppercase whitespace-nowrap">BGM: {Math.round(bgmVolume * 100)}%</label>
@@ -837,7 +837,7 @@ const GameCanvas: React.FC<Props> = ({
       )}
       {isPaused && (
         <div className="absolute inset-0 bg-black/50 sm:backdrop-blur-xl flex items-center justify-center z-[120] p-[5%] animate-fade-in">
-          <div className="bg-white/95 p-[8%] rounded-[3svh] w-full max-w-[300px] shadow-2xl flex flex-col gap-[2.5svh] text-black border-4 border-yellow-400">
+          <div className="bg-white/95 p-[8%] rounded-[3svh] w-full max-w-[38svh] shadow-2xl flex flex-col gap-[2.5svh] text-black border-4 border-yellow-400">
             <h3 className="pixel-font font-bold text-[3svh] mb-[1svh] underline decoration-yellow-400 uppercase text-center tracking-tighter whitespace-nowrap">PAUSED</h3>
             <div className="flex flex-col gap-[2svh] w-full">
               <div className="flex flex-col gap-[1svh] text-left">
@@ -860,7 +860,7 @@ const GameCanvas: React.FC<Props> = ({
         <div className="absolute inset-0 bg-black/50 sm:backdrop-blur-3xl flex flex-col items-center justify-center text-center p-[8%] z-50 animate-fade-in border-none overflow-visible">
            <div className="text-yellow-400 pixel-font text-[3.5svh] mb-[3svh] font-bold pixel-outline uppercase italic tracking-tighter whitespace-nowrap">Level Clear!</div>
            <div className="text-white pixel-font text-[2.5svh] mb-[6svh] font-bold pixel-outline uppercase whitespace-nowrap">Total Score<br/><span className="text-[6svh] text-yellow-400 mt-[1svh] block">{score}</span></div>
-           <button onClick={handleNextLevel} onMouseEnter={() => handleInteractionSfx('hover')} className="w-full max-w-[320px] bg-yellow-400 text-black py-[5%] rounded-[2svh] font-bold text-[2.8svh] pixel-font shadow-[0_0.6svh_0_#b8860b] border-2 border-black active:translate-y-1 whitespace-nowrap uppercase">Next Stage</button>
+           <button onClick={handleNextLevel} onMouseEnter={() => handleInteractionSfx('hover')} className="w-full max-w-[40svh] bg-yellow-400 text-black py-[5%] rounded-[2svh] font-bold text-[2.8svh] pixel-font shadow-[0_0.6svh_0_#b8860b] border-2 border-black active:translate-y-1 whitespace-nowrap uppercase">Next Stage</button>
            <Confetti />
         </div>
       )}
@@ -868,7 +868,7 @@ const GameCanvas: React.FC<Props> = ({
         <div className="absolute inset-0 bg-black/50 sm:backdrop-blur-3xl flex flex-col items-center justify-center text-center p-[8%] z-50 animate-fade-in border-none">
            <div className="text-red-500 pixel-font text-[3.5svh] mb-[3svh] font-bold pixel-outline uppercase tracking-tighter whitespace-nowrap">Game Over</div>
            <div className="text-white pixel-font text-[2.5svh] mb-[10svh] font-bold pixel-outline uppercase whitespace-nowrap">Final Score<br/><span className="text-[8svh] text-yellow-400 mt-[2svh] block">{score}</span></div>
-           <div className="space-y-[3svh] w-full max-w-[320px]">
+           <div className="space-y-[3svh] w-full max-w-[40svh]">
              <button onClick={handleSubmitScore} onMouseEnter={() => handleInteractionSfx('hover')} className="w-full bg-yellow-400 text-black py-[5%] rounded-[2svh] font-bold text-[2.2svh] pixel-font shadow-[0_0.6svh_0_#b8860b] border-2 border-black uppercase tracking-wide whitespace-nowrap uppercase" style={{ wordSpacing: '-0.2em' }}>랭킹보기</button>
              <button onClick={() => { handleInteractionSfx('click', 'CLICK'); resetGame(); randomizeBGM(); setGameState(GameState.READY_TO_START); }} onMouseEnter={() => handleInteractionSfx('hover')} className="w-full bg-white text-black py-[5%] rounded-[2svh] font-bold text-[2.2svh] pixel-font shadow-[0_0.6svh_0_#ccc] border-2 border-black uppercase tracking-wide whitespace-nowrap uppercase" style={{ wordSpacing: '-0.2em' }}>다시하기</button>
            </div>
@@ -876,7 +876,7 @@ const GameCanvas: React.FC<Props> = ({
         </div>
       )}
       <style>{`
-        .pixel-outline { text-shadow: -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 2px 2px 0 #000, 4px 4px 0px rgba(0,0,0,0.5); }
+        .pixel-outline { text-shadow: -0.08em -0.08em 0 #000, 0.08em -0.08em 0 #000, -0.08em 0.08em 0 #000, 0.08em 0.08em 0 #000, 0.15em 0.15em 0 rgba(0,0,0,0.5); }
         .animate-yellow-sparkle { animation: yellow-sparkle-anim 1.5s infinite ease-in-out; }
         @keyframes yellow-sparkle-anim { 0%, 100% { filter: drop-shadow(0 0 5px #fbbf24); transform: scale(1); } 50% { filter: drop-shadow(0 0 15px #fbbf24) brightness(1.2); transform: scale(1.05); } }
         @keyframes cross-sparkle { 0%, 100% { filter: brightness(1) drop-shadow(0 0 5px gold); } 50% { filter: brightness(1.8) drop-shadow(0 0 20px yellow); } }
